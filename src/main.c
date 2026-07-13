@@ -72,28 +72,16 @@ int parse_obj(const char *filename, vec3 **vertices, size_t *vertices_len, face 
             continue;
         }
 
-        /* printf("line: %s\n", line); */
-
         if (line[0] == 'v') {
-            double x = 0;
-            double y = 0;
-            double z = 0;
             char *end_ptr;
-
-            x = strtof(&line[2], &end_ptr);
-            /* printf("end_ptr x: %s\n", end_ptr); */
-            y = strtof(end_ptr + sizeof(char), &end_ptr);
-            /* printf("end_ptr y: %s\n", end_ptr); */
-            z = strtof(end_ptr + sizeof(char), &end_ptr);
-            /* printf("end_ptr z: %s\n", end_ptr); */
-
-            /* printf("x: %f, y: %f, z: %f\n", x, y, z); */
+            double x = strtof(&line[2], &end_ptr);
+            double y = strtof(end_ptr + sizeof(char), &end_ptr);
+            double z = strtof(end_ptr + sizeof(char), &end_ptr);
 
             if (vertices_pos >= vertices_size) {
                 vertices_size *= 2;
                 *vertices = realloc(*vertices, vertices_size * sizeof(vec3));
             }
-            /* printf("pos: %d\n", vertices_pos); */
             (*vertices)[vertices_pos] = (vec3){x, y, z};
             vertices_pos++;
         } else if (line[0] == 'f') {
@@ -106,7 +94,6 @@ int parse_obj(const char *filename, vec3 **vertices, size_t *vertices_len, face 
             char *str = strtok(&line[2], " ");
 
             while (str != NULL && index < FACE_INDICES) {
-                /* printf("%d str: %s\n", index, str); */
                 (*faces)[faces_pos].indices[index] = strtol(str, NULL, 10) - 1;
                 index++;
 
@@ -395,14 +382,6 @@ int main(void) {
     model tri = create_model_from_obj("models/tri.obj");
     tri.pos = (vec3){0, 0, 0};
 
-    // vec4 *vertices = NULL;
-    // int vertices_len = 0;
-    // face *faces = NULL;
-    // int faces_len = 0;
-    // vec4 *normals = NULL;
-    // int normals_len = 0;
-    /* parse_obj(filename, &utah_teapot.vertices, &utah_teapot.vertices_len, &utah_teapot.faces, &utah_teapot.faces_len); */
-
     while (wwl_update(state)) {
         double dt = wwl_get_deltatime(state);
         printf("fps: %f\n", 1 / dt);
@@ -430,25 +409,6 @@ int main(void) {
             camera.pos.x -= sin(camera.rot.yaw) * MOVE_SPEED * dt;
             camera.pos.z -= cos(camera.rot.yaw) * MOVE_SPEED * dt;
         }
-
-        // if (wwl_is_key_down(state, KEY_RIGHT)) {
-        //     camera.rot.yaw += M_PI/2 * dt;
-        // }
-        // if (wwl_is_key_down(state, KEY_LEFT)) {
-        //     camera.rot.yaw -= M_PI/2 * dt;
-        // }
-        // if (wwl_is_key_down(state, KEY_UP)) {
-        //     camera.rot.pitch -= M_PI/2 * dt;
-        //     if (camera.rot.pitch < -M_PI/2) {
-        //         camera.rot.pitch = -M_PI/2;
-        //     }
-        // }
-        // if (wwl_is_key_down(state, KEY_DOWN)) {
-        //     camera.rot.pitch += M_PI/2 * dt;
-        //     if (camera.rot.pitch > M_PI/2) {
-        //         camera.rot.pitch = M_PI/2;
-        //     }
-        // }
 
         if (wwl_is_key_down(state, KEY_RIGHT)) {
             cube.pos.x += dt;
@@ -485,152 +445,22 @@ int main(void) {
             }
         }
 
-        /* printf("camera.pos x: %f y: %f z: %f\n", camera.pos.x, camera.pos.y, camera.pos.z); */
-        /* printf("camera.rot pitch: %f yaw: %f roll: %f\n", camera.rot.pitch, camera.rot.yaw, camera.rot.roll); */
-
         wwl_clear_background(state, 0xFF608060);
         for (int i = 0; i < WIDTH * HEIGHT; i++) {
             z_buffer[i] = FAR_CLIPPING_PLANE;
         }
 
-        render_model(tri, camera);
-        render_model(cube, camera);
         render_model(teapot, camera);
         render_model(monkey, camera);
-
-        /* printf("test\n"); */
-        
-        /* for (int i = 0; i < faces_len; i++) { */
-        /*     face face = faces[i]; */
-
-        /*     vec4 normal = {0}; */
-
-        /*     vec4 v1 = rotate(transform(vertices[face.indices[0]], transformation), rotation); */
-        /*     vec4 v2 = rotate(transform(vertices[face.indices[1]], transformation), rotation); */
-        /*     vec4 v3 = rotate(transform(vertices[face.indices[2]], transformation), rotation); */
-
-        /*     vec4 nv1 = {0}; */
-        /*     vec4 nv2 = {0}; */
-        /*     vec4 nv3 = {0}; */
-        /*     int clipped = clip_triangle(&v1, &v2, &v3, &nv1, &nv2, &nv3); */
-
-        /*     if (clipped == 3) { */
-        /*         continue; */
-        /*     }; */
-
-        /*     vec4 v1s = screen(project(v1)); */
-        /*     vec4 v2s = screen(project(v2)); */
-        /*     vec4 v3s = screen(project(v3)); */
-
-        /*     // if ((v1s.x < 0 || v1s.x >= WIDTH || v1s.y < 0 || v1s.y >= HEIGHT) && */
-        /*     //     (v2s.x < 0 || v2s.x >= WIDTH || v2s.y < 0 || v2s.y >= HEIGHT) && */
-        /*     //     (v3s.x < 0 || v3s.x >= WIDTH || v3s.y < 0 || v3s.y >= HEIGHT)) { */
-        /*     //     continue; */
-        /*     // } */
-
-        /*     vec4 v1v2 = {v2s.x - v1s.x, v2s.y - v1s.y, v2s.z - v1s.z}; */
-        /*     vec4 v1v3 = {v3s.x - v1s.x, v3s.y - v1s.y, v3s.z - v1s.z}; */
-
-        /*     normal.x = (v1v2.y * v1v3.z - v1v2.z * v1v3.y) / 3.0; */
-        /*     normal.y = (v1v2.z * v1v3.x - v1v2.x * v1v3.z) / 3.0; */
-        /*     normal.z = (v1v2.x * v1v3.y - v1v2.y * v1v3.x) / 3.0; */
-
-        /*     // printf("normal %f %f %f\n", normal.x, normal.y, normal.z); */
-
-        /*     if (normal.z < 0) { */
-        /*         continue; */
-        /*     } */
-
-        /*     if (clipped == 1) { */
-        /*         vec4 v1 = screen(project(nv1)); */
-        /*         vec4 v2 = screen(project(nv2)); */
-        /*         vec4 v3 = screen(project(nv3)); */
-        /*         draw_triangle(v1, v2, v3, 0xFFFF00FF); */
-        /*     } */
-
-        /*     draw_triangle(v1s, v2s, v3s, 0xFFFF00FF); */
-
-            /* draw_line(v1s.x, v1s.y, v2s.x, v2s.y, 0xFFAAAAAA); */
-            /* draw_line(v2s.x, v2s.y, v3s.x, v3s.y, 0xFFAAAAAA); */
-            /* draw_line(v3s.x, v3s.y, v1s.x, v1s.y, 0xFFAAAAAA); */
-
-            // for (int j = 0; j < face.count; j++) {
-            //     vec4 pos1 = rotate(transform(vertices[face.indices[j]], transformation), rotation);
-            //     vec4 pos2 = rotate(transform(vertices[face.indices[(j + 1) % face.count]], transformation), rotation);
-            //
-            //     if (j == 0) {
-            //         if (normal.z < 0) {
-            //             break;
-            //         }
-            //     }
-            //
-            //     if (pos1.z < NEAR_CLIPPING_PLANE && pos2.z < NEAR_CLIPPING_PLANE) {
-            //         continue;
-            //     }
-            //
-            //     if (pos1.z < NEAR_CLIPPING_PLANE) {
-            //         pos1 = clip_line(pos1, pos2);
-            //     }
-            //
-            //     if (pos2.z < NEAR_CLIPPING_PLANE) {
-            //         pos2 = clip_line(pos2, pos1);
-            //     }
-            //
-            //     pos1 = project(pos1);
-            //     pos2 = project(pos2);
-            //
-            //     if ((pos1.x < -1 && pos2.x < -1) || (pos1.x >= 1 && pos2.x >= 1) ||
-            //         (pos1.y < -1 && pos2.y < -1) || (pos1.y >= 1 && pos2.y >= 1)) {
-            //         continue;
-            //     }
-            //
-            //     pos1 = screen(pos1);
-            //     pos2 = screen(pos2);
-            //
-            //     int x_distance = pos2.x - pos1.x;
-            //     int y_distance = pos2.y - pos1.y;
-            //     // double z_distance = fabs(pos2.z - pos1.z);
-            //     int distance = abs(x_distance) + abs(y_distance);
-            //
-            //     double x_step = (double)x_distance / (double)distance;
-            //     double y_step = (double)y_distance / (double)distance;
-            //     // double z_step = z_distance / (double)distance;
-            //
-            //     for (int i = 0; i < distance / 2; i++) {
-            //         int x = pos1.x + i * x_step * 2.0;
-            //         int y = pos1.y + i * y_step * 2.0;
-            //         // double z = pos1.z + i * z_step * 2.0;
-            //
-            //         wwl_draw_rect(state, x - 1, y - 1, 2, 2, 0xFF805020);
-            //
-            //         // draw_pixel(x, y, z, state);
-            //         // draw_pixel(x+1, y, z, state);
-            //         // draw_pixel(x, y+1, z, state);
-            //         // draw_pixel(x+1, y+1, z, state);
-            //     }
-            // }
-        /* } */
-
-        // for (int i = 0; i < vertices_len; i++) {
-        //     vec4 vertex = vertices[i];
-        //     vec4 transformed = screen(project(rotate_xz(transform(vertex, transformation), yaw)));
-        //     if (transformed.z > FAR_CLIPPING_PLANE || transformed.z < NEAR_CLIPPING_PLANE) {
-        //         continue;
-        //     }
-        //     int x = transformed.x;
-        //     int y = transformed.y;
-        //     double z = transformed.z;
-        //     draw_pixel(x, y, z, state);
-        //     draw_pixel(x+1, y, z, state);
-        //     draw_pixel(x, y+1, z, state);
-        //     draw_pixel(x+1, y+1, z, state);
-        // }
+        render_model(cube, camera);
+        render_model(tri, camera);
 
         wwl_update_end(state);
     }
 
-    free_model(cube);
     free_model(teapot);
     free_model(monkey);
+    free_model(cube);
+    free_model(tri);
     wwl_close(state);
 }
