@@ -1,7 +1,7 @@
 TARGET = software-rasterizer
-CC = clang
-CFLAGS = -Ivendor/wwl -Lvendor/wwl -O3 -Wall -Wextra
-LIBS = -lm -Wl,-rpath=$(shell pwd)/vendor/wwl -lwwl
+CC = gcc
+CFLAGS = -O3 -Wall -Wextra
+LIBS = -lm -lwwl
 SRCS = $(wildcard src/*.c)
 DEPS = $(wildcard src/*.h)
 BUILDDIR = build
