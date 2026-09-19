@@ -448,8 +448,8 @@ void render_model(model model, camera camera) {
 int main(void) {
     state = wwl_init(WIDTH * SCREEN_SCALE, HEIGHT * SCREEN_SCALE, "software rasterizer");
     wwl_set_fps(state, TARGET_FPS);
-    wwl_set_min_size(state, WIDTH, HEIGHT);
-    wwl_set_max_size(state, WIDTH, HEIGHT);
+    wwl_set_min_size(state, WIDTH * SCREEN_SCALE, HEIGHT * SCREEN_SCALE);
+    wwl_set_max_size(state, WIDTH * SCREEN_SCALE, HEIGHT * SCREEN_SCALE);
 
     bool mouse_control = false;
     double light_angle = 0;
