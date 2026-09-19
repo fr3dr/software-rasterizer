@@ -7,8 +7,9 @@
 #include <wwl.h>
 
 #define TARGET_FPS 60
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 320
+#define HEIGHT 240
+#define SCREEN_SCALE 3
 #define ASPECT ((float)WIDTH/HEIGHT)
 #define FOV 60
 
@@ -351,7 +352,7 @@ void draw_triangle(vec3 v1, vec3 v2, vec3 v3, vec3 vn1, vec3 vn2, vec3 vn3, vec3
             uint8_t g = (uint8_t)(color >> 8) * light_g;
             uint8_t b = (uint8_t)(color) * light_b;
             uint32_t pixel_color = 0xFF000000 | r | (g << 8) | (b << 16);
-            wwl_draw_pixel(state, screen_x, screen_y, pixel_color);
+            wwl_draw_rect(state, screen_x * SCREEN_SCALE, screen_y * SCREEN_SCALE, SCREEN_SCALE, SCREEN_SCALE, pixel_color);
         }
     }
 }
@@ -445,7 +446,7 @@ void render_model(model model, camera camera) {
 
 
 int main(void) {
-    state = wwl_init(WIDTH, HEIGHT, "software rasterizer");
+    state = wwl_init(WIDTH * SCREEN_SCALE, HEIGHT * SCREEN_SCALE, "software rasterizer");
     wwl_set_fps(state, TARGET_FPS);
     wwl_set_min_size(state, WIDTH, HEIGHT);
     wwl_set_max_size(state, WIDTH, HEIGHT);
